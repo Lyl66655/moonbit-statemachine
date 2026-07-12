@@ -7,5 +7,5 @@ keywords = ["statemachine", "fsm", "hsm", "workflow", "automata"]
 description = "A hierarchical finite state machine (HSM) and workflow execution engine for MoonBit"
 
 options(
-  "preferred-target": "native",
+  "preferred-target": "wasm-gc",
 )
