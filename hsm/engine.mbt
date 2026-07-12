@@ -1,6 +1,6 @@
 ///|
 /// Create a new Hierarchical State Machine.
-pub fn[S : Eq, E, C] HSM::new(initial : S, context : C) -> HSM[S, E, C] {
+pub fn[S, E, C] HSM::new(initial : S, context : C) -> HSM[S, E, C] {
   {
     current_state: initial,
     context,
@@ -46,7 +46,7 @@ pub fn[S : Eq, E, C] HSM::get_path_to_root(
   state : S
 ) -> Array[S] {
   let path = []
-  mut curr = Some(state)
+  let mut curr = Some(state)
   while curr is Some(s) {
     path.push(s)
     curr = self.get_parent(s)
@@ -60,9 +60,9 @@ pub fn[S : Eq, E, C] HSM::resolve_initial_leaf(
   self : HSM[S, E, C],
   state : S
 ) -> S {
-  mut curr = state
+  let mut curr = state
   while true {
-    mut found_child = false
+    let mut found_child = false
     for i = 0; i < self.hierarchy.length(); i = i + 1 {
       if self.hierarchy[i].state == curr {
         match self.hierarchy[i].initial_child {
@@ -75,7 +75,7 @@ pub fn[S : Eq, E, C] HSM::resolve_initial_leaf(
         break
       }
     }
-    if not(found_child) {
+    if !found_child {
       break
     }
   }
@@ -166,7 +166,7 @@ pub fn[S : Eq, E : Eq, C] HSM::send(self : HSM[S, E, C], event : E) -> Bool {
           
           for k = 0; k < exit_path.length(); k = k + 1 {
             let ex_st = exit_path[k]
-            if not(target_path_to_root.contains(ex_st)) {
+            if !target_path_to_root.contains(ex_st) {
               match self.find_config(ex_st) {
                 Some(cfg) =>
                   match cfg.on_exit {
@@ -188,7 +188,7 @@ pub fn[S : Eq, E : Eq, C] HSM::send(self : HSM[S, E, C], event : E) -> Bool {
 
           for k = target_path_to_root.length() - 1; k >= 0; k = k - 1 {
             let en_st = target_path_to_root[k]
-            if not(exit_path.contains(en_st)) {
+            if !exit_path.contains(en_st) {
               match self.find_config(en_st) {
                 Some(cfg) =>
                   match cfg.on_entry {

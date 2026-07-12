@@ -16,8 +16,8 @@ enum PlayerEvent {
 
 ///|
 struct PlayerContext {
-  mut health : Int
-  mut log : Array[String]
+  health : Int
+  log : Array[String]
 } derive(Eq, Debug)
 
 ///|
@@ -48,6 +48,7 @@ test "hsm event bubbling and hierarchy" {
   hsm.add_transition(PlayerState::Standing, PlayerEvent::Move, PlayerState::Running)
   hsm.add_transition(PlayerState::Running, PlayerEvent::Stop, PlayerState::Standing)
   hsm.add_transition(PlayerState::Alive, PlayerEvent::FatalHit, PlayerState::Dead)
+  hsm.add_transition(PlayerState::Dead, PlayerEvent::Respawn, PlayerState::Standing)
 
   let res1 = hsm.send(PlayerEvent::Move)
   inspect(res1, content="true")
@@ -56,5 +57,11 @@ test "hsm event bubbling and hierarchy" {
   let res2 = hsm.send(PlayerEvent::FatalHit)
   inspect(res2, content="true")
   debug_inspect(hsm.get_state(), content="Dead")
-  inspect(ctx.log, content="[\"exit_running\", \"exit_alive\"]")
+  debug_inspect(ctx.log, content=(
+    #|["exit_standing", "enter_running", "exit_running", "exit_alive"]
+  ))
+  
+  let res3 = hsm.send(PlayerEvent::Respawn)
+  inspect(res3, content="true")
+  debug_inspect(hsm.get_state(), content="Standing")
 }
