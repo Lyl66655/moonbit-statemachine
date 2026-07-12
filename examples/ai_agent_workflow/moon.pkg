@@ -1,5 +1,5 @@
 import {
-  "moonbit-community/statemachine/workflow",
-  "moonbit-community/statemachine/timer",
-  "moonbit-community/statemachine/export",
+  "ylyl/moonbit-workflow-engine/workflow",
+  "ylyl/moonbit-workflow-engine/timer",
+  "ylyl/moonbit-workflow-engine/export",
 }

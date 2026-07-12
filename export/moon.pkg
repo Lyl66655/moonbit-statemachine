@@ -1,4 +1,4 @@
 import {
-  "moonbit-community/statemachine/hsm",
-  "moonbit-community/statemachine/workflow",
+  "ylyl/moonbit-workflow-engine/hsm",
+  "ylyl/moonbit-workflow-engine/workflow",
 }
