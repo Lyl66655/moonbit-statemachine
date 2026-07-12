@@ -1,6 +1,7 @@
 .moon/
 .repos/
 _build/
+pkg.generated.mbti
 *.target
 *.wasm
 *.js
