@@ -1,0 +1,5 @@
+test-import {
+  "moonbit-community/statemachine/workflow",
+  "moonbit-community/statemachine/timer",
+  "moonbit-community/statemachine/export",
+}
