@@ -1,4 +1,4 @@
-test-import {
+import {
   "moonbit-community/statemachine/hsm",
   "moonbit-community/statemachine/export",
 }

@@ -95,12 +95,20 @@ test "rpg boss battle hierarchical state machine" {
   debug_inspect(hsm.get_state(), content="Defeated")
   debug_inspect(
     ctx.log,
-    content="[\"Entering Combat! Music changes.\", \"Boss Enraged! Attack power doubled to 100\", \"Exiting Combat! Battle over.\"]",
+    content=(
+      #|[
+      #|  "Entering Combat! Music changes.",
+      #|  "Boss Enraged! Attack power doubled to 100",
+      #|  "Exiting Combat! Battle over.",
+      #|]
+    ),
   )
 
   let diagram = @export.export_hsm_mermaid(hsm, bstate_str, bevent_str)
   debug_inspect(
     diagram,
-    content="stateDiagram-v2\n  [*] --> Defeated\n  state Peaceful {\n    [*] --> Patrol\n  }\n  state Combat {\n    [*] --> Chase\n  }\n  Patrol --> Combat : PlayerSpotted\n  Chase --> Attack : PlayerInMeleeRange\n  Attack --> Chase : PlayerOutRange\n  Combat --> Enraged : HealthBelowHalf\n  Combat --> Defeated : FatalStrike\n",
+    content=(
+      #|"stateDiagram-v2\n  [*] --> Defeated\n  state Peaceful {\n    [*] --> Patrol\n  }\n  state Combat {\n    [*] --> Chase\n  }\n  Patrol --> Combat : PlayerSpotted\n  Chase --> Attack : PlayerInMeleeRange\n  Attack --> Chase : PlayerOutRange\n  Combat --> Enraged : HealthBelowHalf\n  Combat --> Defeated : FatalStrike\n"
+    ),
   )
 }

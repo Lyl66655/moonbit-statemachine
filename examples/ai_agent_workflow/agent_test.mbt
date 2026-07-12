@@ -56,13 +56,23 @@ test "ai agent autonomous coding pipeline" {
   debug_inspect(status, content="Success")
   debug_inspect(
     ctx.log,
-    content="[\"[1] Analyzed codebase and created implementation plan.\", \"[2] Attempt 1: Syntax error during compilation.\", \"[2] Attempt 2: Code compiled successfully!\", \"[3] All 8 unit tests passed with 0 warnings.\", \"[4] Verified OSC 2026 guidelines and generated documentation.\"]",
+    content=(
+      #|[
+      #|  "[1] Analyzed codebase and created implementation plan.",
+      #|  "[2] Attempt 1: Syntax error during compilation.",
+      #|  "[2] Attempt 2: Code compiled successfully!",
+      #|  "[3] All 8 unit tests passed with 0 warnings.",
+      #|  "[4] Verified OSC 2026 guidelines and generated documentation.",
+      #|]
+    ),
   )
 
   let diagram = @export.export_workflow_mermaid(wf)
   debug_inspect(
     diagram,
-    content="flowchart TD\n  Start([Start: Antigravity-Agent-Pipeline]) --> Step0\n  Step0[Research & Plan] -->|Success| Step1\n  Step0 -->|Fail| Failed([Failed])\n  Step1[Write Implementation] -->|Success| Step2\n  Step1 -.->|Retry (2 max)| Step1\n  Step1 -->|Fail| Failed([Failed])\n  Step2[Run Automated Tests] -->|Success| Step3\n  Step2 -->|Fail| Failed([Failed])\n  Step3[Self-Review & Doc] -->|Success| Success([Success])\n  Step3 -->|Fail| Failed([Failed])\n",
+    content=(
+      #|"flowchart TD\n  Start([Start: Antigravity-Agent-Pipeline]) --> Step0\n  Step0[Research & Plan] -->|Success| Step1\n  Step0 -->|Fail| Failed([Failed])\n  Step1[Write Implementation] -->|Success| Step2\n  Step1 -.->|Retry (2 max)| Step1\n  Step1 -->|Fail| Failed([Failed])\n  Step2[Run Automated Tests] -->|Success| Step3\n  Step2 -->|Fail| Failed([Failed])\n  Step3[Self-Review & Doc] -->|Success| Success([Success])\n  Step3 -->|Fail| Failed([Failed])\n"
+    ),
   )
 
   let sched = @timer.Scheduler::new()
