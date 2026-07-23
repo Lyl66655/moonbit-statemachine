@@ -45,23 +45,78 @@ test "hsm event bubbling and hierarchy" {
     on_exit=fn(c) { c.log.push("exit_running") },
   )
 
-  hsm.add_transition(PlayerState::Standing, PlayerEvent::Move, PlayerState::Running)
-  hsm.add_transition(PlayerState::Running, PlayerEvent::Stop, PlayerState::Standing)
-  hsm.add_transition(PlayerState::Alive, PlayerEvent::FatalHit, PlayerState::Dead)
-  hsm.add_transition(PlayerState::Dead, PlayerEvent::Respawn, PlayerState::Standing)
+  hsm.add_transition(
+    PlayerState::Standing,
+    PlayerEvent::Move,
+    PlayerState::Running,
+  )
+  hsm.add_transition(
+    PlayerState::Running,
+    PlayerEvent::Stop,
+    PlayerState::Standing,
+  )
+  hsm.add_transition(
+    PlayerState::Alive,
+    PlayerEvent::FatalHit,
+    PlayerState::Dead,
+  )
+  hsm.add_transition(
+    PlayerState::Dead,
+    PlayerEvent::Respawn,
+    PlayerState::Standing,
+  )
 
   let res1 = hsm.send(PlayerEvent::Move)
   inspect(res1, content="true")
   debug_inspect(hsm.get_state(), content="Running")
-  
+
   let res2 = hsm.send(PlayerEvent::FatalHit)
   inspect(res2, content="true")
   debug_inspect(hsm.get_state(), content="Dead")
-  debug_inspect(ctx.log, content=(
-    #|["exit_standing", "enter_running", "exit_running", "exit_alive"]
-  ))
-  
+  debug_inspect(
+    ctx.log,
+    content=(
+      #|["exit_standing", "enter_running", "exit_running", "exit_alive"]
+    ),
+  )
+
   let res3 = hsm.send(PlayerEvent::Respawn)
   inspect(res3, content="true")
   debug_inspect(hsm.get_state(), content="Standing")
+}
+
+///|
+test "hsm boundary conditions" {
+  let ctx = { health: 100, log: [] }
+  let hsm = @hsm.HSM::new(PlayerState::Standing, ctx)
+
+  // Transition from state that doesn't exist in hierarchy
+  hsm.add_transition(
+    PlayerState::Dead,
+    PlayerEvent::Respawn,
+    PlayerState::Standing,
+  )
+
+  // Try sending event when current state is not fully registered in hierarchy tree
+  let res = hsm.send(PlayerEvent::Respawn)
+  // It should be false because we are in Standing, and Respawn is on Dead
+  inspect(res, content="false")
+
+  // Unhandled event
+  let res2 = hsm.send(PlayerEvent::Stop)
+  inspect(res2, content="false")
+
+  // Deep hierarchy missing parent
+  // If we try to add state with non-existent parent, it's just registered but LCA calculation might act as if parent is root if it's not found. 
+  // We can just verify the engine doesn't crash.
+  hsm.add_state(PlayerState::Running, parent=PlayerState::Alive)
+  hsm.add_transition(
+    PlayerState::Standing,
+    PlayerEvent::Move,
+    PlayerState::Running,
+  )
+
+  let res3 = hsm.send(PlayerEvent::Move)
+  inspect(res3, content="true")
+  debug_inspect(hsm.get_state(), content="Running")
 }

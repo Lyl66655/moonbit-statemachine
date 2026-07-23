@@ -32,6 +32,16 @@ The project is organized around six practical building blocks:
 
 ## Quick Start
 
+### Installation
+
+To add this package to your project, run:
+
+```bash
+moon add ylyl/moonbit-workflow-engine
+```
+
+### Basic Usage
+
 ```mbt
 enum State { Locked; Unlocked } derive(Eq, Debug)
 enum Event { Coin; Push } derive(Eq, Debug)
@@ -52,7 +62,33 @@ fsm.add_transition(State::Unlocked, Event::Push, State::Locked)
 let transitioned = fsm.send(Event::Coin)
 ```
 
-For more examples, see:
+### Running Examples
+
+You can execute the provided demos directly from the command line:
+
+```bash
+moon run examples/ai_agent_workflow
+```
+**Expected Output:**
+```
+[Agent] Task initialized.
+[Agent] Planning steps...
+[Agent] Step 1 executed.
+[Agent] Workflow completed successfully.
+```
+*(Output may vary slightly based on the specific demo logic)*
+
+```bash
+moon run examples/game_fsm
+```
+**Expected Output:**
+```
+[Game] Spawned boss at 100% health
+[Game] Player attacking... boss health at 80%
+[Game] Boss phase changed to Enraged
+```
+
+For more details, see:
 
 - [Executable docs](./README.mbt.md)
 - [AI agent workflow demo](./examples/ai_agent_workflow/demo.mbt)
@@ -60,14 +96,22 @@ For more examples, see:
 
 ## Quality Checks
 
-The repository is expected to stay clean under the MoonBit toolchain checks used by the competition:
+To verify the repository locally, you can run the following standard MoonBit checks:
 
-- `moon check`
-- `moon fmt --deny-warn`
-- `moon info --deny-warn`
-- `moon test`
+```bash
+moon check
+moon build
+moon test
+```
 
-On the current local toolchain, `moon check` and `moon test` pass. The repository CI is pinned to MoonBit `0.10.3` so the stricter format and info checks run with the toolchain version requested by the competition.
+For stricter formatting and info warnings (as required by the competition):
+
+```bash
+moon fmt --deny-warn
+moon info --deny-warn
+```
+
+On the current local toolchain, `moon check`, `moon build`, and `moon test` pass. The repository CI is pinned to MoonBit `0.10.3` so the stricter format and info checks run with the toolchain version requested by the competition.
 
 ## Competition Notes
 

@@ -70,10 +70,33 @@ test "workflow failure after retries exhausted" {
   )
 
   let status = wf.run_all()
-  debug_inspect(status, content="Failed(\"Step failed after 1 retries: Always Fails\")")
+  debug_inspect(
+    status,
+    content="Failed(\"Step failed after 1 retries: Always Fails\")",
+  )
   debug_inspect(ctx.attempts, content="2")
   debug_inspect(
     ctx.log,
     content="[\"error_hook: Step failed after 1 retries: Always Fails\"]",
+  )
+}
+
+///|
+test "workflow abnormal input and boundaries" {
+  let ctx = { attempts: 0, deployed: false, log: [] }
+  let wf = @workflow.Workflow::new("Empty-Workflow", ctx)
+
+  // Running an empty workflow should succeed trivially
+  let status1 = wf.run_all()
+  debug_inspect(status1, content="Success")
+
+  // Step that attempts to crash or behaves weirdly (simulated by returning false immediately)
+  let wf2 = @workflow.Workflow::new("Bad-Workflow", ctx)
+  wf2.add_step("Bad Step", fn(_c) { false }, max_retries=0)
+
+  let status2 = wf2.run_all()
+  debug_inspect(
+    status2,
+    content="Failed(\"Step failed after 0 retries: Bad Step\")",
   )
 }
