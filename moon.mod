@@ -1,4 +1,4 @@
-name = "ylyl/moonbit-workflow-engine"
+name = "Lyl66655/moonbit-workflow-engine"
 
 version = "0.1.0"
 
