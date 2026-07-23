@@ -23,6 +23,9 @@ jobs:
       - name: moon check
         run: moon check
 
+      - name: moon build
+        run: moon build
+
       - name: moon fmt --deny-warn
         run: moon fmt --deny-warn
 
