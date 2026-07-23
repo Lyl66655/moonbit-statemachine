@@ -3,7 +3,7 @@
 pub fn[S : Eq, E, C] export_hsm_mermaid(
   hsm : @hsm.HSM[S, E, C],
   state_name : (S) -> String,
-  event_name : (E) -> String
+  event_name : (E) -> String,
 ) -> String {
   let mut out = "stateDiagram-v2\n"
   out = out + "  [*] --> " + state_name(hsm.get_state()) + "\n"
@@ -14,15 +14,18 @@ pub fn[S : Eq, E, C] export_hsm_mermaid(
     let mut has_children = false
     for j = 0; j < hsm.hierarchy.length(); j = j + 1 {
       match hsm.hierarchy[j].parent {
-        Some(p) => if p == hs.state { has_children = true; break }
+        Some(p) =>
+          if p == hs.state {
+            has_children = true
+            break
+          }
         None => ()
       }
     }
     if has_children {
       out = out + "  state " + s_name + " {\n"
       match hs.initial_child {
-        Some(init_ch) =>
-          out = out + "    [*] --> " + state_name(init_ch) + "\n"
+        Some(init_ch) => out = out + "    [*] --> " + state_name(init_ch) + "\n"
         None => ()
       }
       out = out + "  }\n"
@@ -48,7 +51,7 @@ pub fn[S : Eq, E, C] export_hsm_mermaid(
 pub fn[S : Eq, E, C] export_hsm_plantuml(
   hsm : @hsm.HSM[S, E, C],
   state_name : (S) -> String,
-  event_name : (E) -> String
+  event_name : (E) -> String,
 ) -> String {
   let mut out = "@startuml\n"
   out = out + "[*] --> " + state_name(hsm.get_state()) + "\n"
@@ -59,15 +62,18 @@ pub fn[S : Eq, E, C] export_hsm_plantuml(
     let mut has_children = false
     for j = 0; j < hsm.hierarchy.length(); j = j + 1 {
       match hsm.hierarchy[j].parent {
-        Some(p) => if p == hs.state { has_children = true; break }
+        Some(p) =>
+          if p == hs.state {
+            has_children = true
+            break
+          }
         None => ()
       }
     }
     if has_children {
       out = out + "state " + s_name + " {\n"
       match hs.initial_child {
-        Some(init_ch) =>
-          out = out + "  [*] --> " + state_name(init_ch) + "\n"
+        Some(init_ch) => out = out + "  [*] --> " + state_name(init_ch) + "\n"
         None => ()
       }
       out = out + "}\n"
@@ -102,7 +108,14 @@ pub fn[C] export_workflow_mermaid(wf : @workflow.Workflow[C]) -> String {
     } else {
       "Success([Success])"
     }
-    out = out + "  " + step_id + "[" + st.name + "] -->|Success| " + next_id + "\n"
+    out = out +
+      "  " +
+      step_id +
+      "[" +
+      st.name +
+      "] -->|Success| " +
+      next_id +
+      "\n"
     if st.max_retries > 0 {
       out = out +
         "  " +

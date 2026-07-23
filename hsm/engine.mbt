@@ -17,7 +17,7 @@ pub fn[S : Eq, E, C] HSM::add_state(
   self : HSM[S, E, C],
   state : S,
   parent? : S,
-  initial_child? : S
+  initial_child? : S,
 ) -> Unit {
   for i = 0; i < self.hierarchy.length(); i = i + 1 {
     if self.hierarchy[i].state == state {
@@ -43,7 +43,7 @@ pub fn[S : Eq, E, C] HSM::get_parent(self : HSM[S, E, C], state : S) -> S? {
 /// Get the path from the given state up to the root ancestor: [state, parent, grandparent, ...].
 pub fn[S : Eq, E, C] HSM::get_path_to_root(
   self : HSM[S, E, C],
-  state : S
+  state : S,
 ) -> Array[S] {
   let path = []
   let mut curr = Some(state)
@@ -58,7 +58,7 @@ pub fn[S : Eq, E, C] HSM::get_path_to_root(
 /// Recursively resolve the initial leaf child of a composite state.
 pub fn[S : Eq, E, C] HSM::resolve_initial_leaf(
   self : HSM[S, E, C],
-  state : S
+  state : S,
 ) -> S {
   let mut curr = state
   while true {
@@ -90,11 +90,9 @@ pub fn[S, E, C] HSM::add_transition(
   event : E,
   to_state : S,
   cond? : (C, E) -> Bool,
-  action? : (C, E) -> Unit
+  action? : (C, E) -> Unit,
 ) -> Unit {
-  self.transitions.push(
-    { from_state, event, to_state, cond, action }
-  )
+  self.transitions.push({ from_state, event, to_state, cond, action })
 }
 
 ///|
@@ -103,7 +101,7 @@ pub fn[S : Eq, E, C] HSM::on_state(
   self : HSM[S, E, C],
   state : S,
   on_entry? : (C) -> Unit,
-  on_exit? : (C) -> Unit
+  on_exit? : (C) -> Unit,
 ) -> Unit {
   for i = 0; i < self.state_configs.length(); i = i + 1 {
     if self.state_configs[i].0 == state {
@@ -118,7 +116,7 @@ pub fn[S : Eq, E, C] HSM::on_state(
 /// Helper to find state config.
 fn[S : Eq, E, C] HSM::find_config(
   self : HSM[S, E, C],
-  state : S
+  state : S,
 ) -> @core.StateConfig[C]? {
   for i = 0; i < self.state_configs.length(); i = i + 1 {
     if self.state_configs[i].0 == state {
@@ -163,7 +161,7 @@ pub fn[S : Eq, E : Eq, C] HSM::send(self : HSM[S, E, C], event : E) -> Bool {
           let target_leaf = self.resolve_initial_leaf(t.to_state)
           let exit_path = active_path
           let target_path_to_root = self.get_path_to_root(target_leaf)
-          
+
           for k = 0; k < exit_path.length(); k = k + 1 {
             let ex_st = exit_path[k]
             if !target_path_to_root.contains(ex_st) {

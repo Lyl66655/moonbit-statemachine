@@ -67,23 +67,42 @@ test "rpg boss battle hierarchical state machine" {
     on_entry=fn(c) { c.log.push("Entering Combat! Music changes.") },
     on_exit=fn(c) { c.log.push("Exiting Combat! Battle over.") },
   )
-  hsm.on_state(
-    BossState::Enraged,
-    on_entry=fn(c) {
-      c.attack_power = c.attack_power * 2
-      c.log.push("Boss Enraged! Attack power doubled to " + c.attack_power.to_string())
-    },
-  )
+  hsm.on_state(BossState::Enraged, on_entry=fn(c) {
+    c.attack_power = c.attack_power * 2
+    c.log.push(
+      "Boss Enraged! Attack power doubled to " + c.attack_power.to_string(),
+    )
+  })
 
-  hsm.add_transition(BossState::Patrol, BossEvent::PlayerSpotted, BossState::Combat)
-  hsm.add_transition(BossState::Chase, BossEvent::PlayerInMeleeRange, BossState::Attack)
-  hsm.add_transition(BossState::Attack, BossEvent::PlayerOutRange, BossState::Chase)
-  hsm.add_transition(BossState::Combat, BossEvent::HealthBelowHalf, BossState::Enraged)
-  hsm.add_transition(BossState::Combat, BossEvent::FatalStrike, BossState::Defeated)
+  hsm.add_transition(
+    BossState::Patrol,
+    BossEvent::PlayerSpotted,
+    BossState::Combat,
+  )
+  hsm.add_transition(
+    BossState::Chase,
+    BossEvent::PlayerInMeleeRange,
+    BossState::Attack,
+  )
+  hsm.add_transition(
+    BossState::Attack,
+    BossEvent::PlayerOutRange,
+    BossState::Chase,
+  )
+  hsm.add_transition(
+    BossState::Combat,
+    BossEvent::HealthBelowHalf,
+    BossState::Enraged,
+  )
+  hsm.add_transition(
+    BossState::Combat,
+    BossEvent::FatalStrike,
+    BossState::Defeated,
+  )
 
   let _ = hsm.send(BossEvent::PlayerSpotted)
   debug_inspect(hsm.get_state(), content="Chase")
-  
+
   let _ = hsm.send(BossEvent::PlayerInMeleeRange)
   debug_inspect(hsm.get_state(), content="Attack")
 

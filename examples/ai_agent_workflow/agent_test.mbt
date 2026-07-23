@@ -8,12 +8,7 @@ struct AgentContext {
 
 ///|
 test "ai agent autonomous coding pipeline" {
-  let ctx = {
-    code_written: false,
-    tests_passed: false,
-    retries: 0,
-    log: [],
-  }
+  let ctx = { code_written: false, tests_passed: false, retries: 0, log: [] }
   let wf = @workflow.Workflow::new("Antigravity-Agent-Pipeline", ctx)
 
   wf.add_step("Research & Plan", fn(c) {

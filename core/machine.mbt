@@ -33,7 +33,7 @@ pub fn[S, E, C] Machine::get_history(self : Machine[S, E, C]) -> Array[S] {
 pub fn[S, E, C] Machine::reset(
   self : Machine[S, E, C],
   initial : S,
-  context : C
+  context : C,
 ) -> Unit {
   self.current_state = initial
   self.context = context
@@ -49,11 +49,9 @@ pub fn[S, E, C] Machine::add_transition(
   event : E,
   to_state : S,
   cond? : (C, E) -> Bool,
-  action? : (C, E) -> Unit
+  action? : (C, E) -> Unit,
 ) -> Unit {
-  self.transitions.push(
-    { from_state, event, to_state, cond, action }
-  )
+  self.transitions.push({ from_state, event, to_state, cond, action })
 }
 
 ///|
@@ -62,7 +60,7 @@ pub fn[S : Eq, E, C] Machine::on_state(
   self : Machine[S, E, C],
   state : S,
   on_entry? : (C) -> Unit,
-  on_exit? : (C) -> Unit
+  on_exit? : (C) -> Unit,
 ) -> Unit {
   for i = 0; i < self.state_configs.length(); i = i + 1 {
     if self.state_configs[i].0 == state {
@@ -77,7 +75,7 @@ pub fn[S : Eq, E, C] Machine::on_state(
 /// Helper to find state config for a given state.
 fn[S : Eq, E, C] Machine::find_config(
   self : Machine[S, E, C],
-  state : S
+  state : S,
 ) -> StateConfig[C]? {
   for i = 0; i < self.state_configs.length(); i = i + 1 {
     if self.state_configs[i].0 == state {
@@ -92,7 +90,7 @@ fn[S : Eq, E, C] Machine::find_config(
 /// Returns `true` if a valid transition occurred, `false` otherwise.
 pub fn[S : Eq, E : Eq, C] Machine::send(
   self : Machine[S, E, C],
-  event : E
+  event : E,
 ) -> Bool {
   let current = self.current_state
   for i = 0; i < self.transitions.length(); i = i + 1 {

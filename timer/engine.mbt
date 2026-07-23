@@ -1,6 +1,6 @@
 ///|
 /// Create a new deterministic event scheduler starting at `initial_time` (default 0).
-pub fn[E] Scheduler::new(initial_time~ : Int64 = 0L) -> Scheduler[E] {
+pub fn[E] Scheduler::new(initial_time? : Int64 = 0L) -> Scheduler[E] {
   { next_id: 1, current_time: initial_time, events: [] }
 }
 
@@ -16,7 +16,7 @@ pub fn[E] Scheduler::get_time(self : Scheduler[E]) -> Int64 {
 pub fn[E] Scheduler::schedule_after(
   self : Scheduler[E],
   delay : Int64,
-  event : E
+  event : E,
 ) -> Int {
   let id = self.next_id
   self.next_id = self.next_id + 1
@@ -31,7 +31,7 @@ pub fn[E] Scheduler::schedule_after(
 pub fn[E] Scheduler::schedule_periodic(
   self : Scheduler[E],
   interval : Int64,
-  event : E
+  event : E,
 ) -> Int {
   let id = self.next_id
   self.next_id = self.next_id + 1
@@ -63,7 +63,7 @@ pub fn[E] Scheduler::tick(self : Scheduler[E], delta : Int64) -> Array[E] {
 /// Advance simulation time to `target_time` and return all triggered events in chronological order.
 pub fn[E] Scheduler::advance_to(
   self : Scheduler[E],
-  target_time : Int64
+  target_time : Int64,
 ) -> Array[E] {
   if target_time <= self.current_time {
     return []
@@ -86,7 +86,7 @@ pub fn[E] Scheduler::advance_to(
     let ev = self.events[earliest_idx]
     self.current_time = ev.trigger_at
     triggered.push(ev.event)
-    
+
     if ev.interval > 0L {
       self.events[earliest_idx] = {
         id: ev.id,
