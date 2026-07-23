@@ -1,4 +1,4 @@
 import {
-  "ylyl/moonbit-workflow-engine/hsm",
-  "ylyl/moonbit-workflow-engine/workflow",
+  "Lyl66655/moonbit-workflow-engine/hsm",
+  "Lyl66655/moonbit-workflow-engine/workflow",
 }
