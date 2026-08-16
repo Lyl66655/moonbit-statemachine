@@ -43,7 +43,7 @@ The project is organized around six practical building blocks:
 To add this package to your project, run:
 
 ```bash
-moon add Lyl66655/moonbit-workflow-engine@0.1.2
+moon add Lyl66655/moonbit-workflow-engine@0.1.3
 ```
 
 ### Basic Usage
@@ -119,12 +119,20 @@ moon check --deny-warn
 moon test --deny-warn
 ```
 
+To validate every supported compiler backend locally:
+
+```bash
+moon check --target all --deny-warn
+moon build --target all
+moon test --target all --deny-warn
+```
+
 The benchmark package reports logical operations, successes, failures, and
 Markdown release evidence without wall-clock assertions. Use
 `@benchmarks.run_suite(100)` and `@benchmarks.summarize(results)` in a
 MoonBit package to reproduce the release evidence.
 
-On the current local toolchain, `moon check`, `moon build`, and `moon test` pass. The repository CI is pinned to MoonBit `0.10.3` so the stricter format and info checks run with the toolchain version requested by the competition.
+On the current local toolchain, the standard and all-backend checks pass. Repository CI runs the standard workflow on Ubuntu, Windows, and macOS with MoonBit `0.10.7+bc794d341`.
 
 ## Competition Notes
 
@@ -137,9 +145,9 @@ This repository is prepared for the OSC 2026 MoonBit track:
 
 ## Current Status
 
-- MoonBit source files: 46
-- MoonBit source lines: 3,000+ (including executable boundary tests)
-- Test count and result: 41 passed, 0 failed in the local verification run
+- MoonBit source files: 37
+- MoonBit source lines: 3,062 (excluding generated `.mbti` files)
+- Test count and result: 43 passed, 0 failed in the local verification run
 
 The repository includes production-oriented engines, diagnostics, deterministic benchmark scenarios, executable examples, and boundary tests. The OSC guide uses 4k–10k effective MoonBit lines as a project-scale reference; this checkout has crossed the requested 3,000-line milestone and should continue toward the larger project-scale range before final acceptance.
 
