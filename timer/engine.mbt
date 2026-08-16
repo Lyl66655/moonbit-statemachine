@@ -98,9 +98,28 @@ pub fn[E] Scheduler::schedule_periodic(
 ) -> Int {
   let id = self.next_id
   self.next_id = self.next_id + 1
-  let trigger_at = self.current_time + interval
-  self.events.push({ id, event, trigger_at, interval })
+  // A non-positive period would be reinserted at the same timestamp forever.
+  // Keep the stable Int-returning API, but make malformed input a one-shot
+  // event at the current logical time instead of allowing an infinite tick.
+  let safe_interval = if interval <= 0L { 0L } else { interval }
+  let trigger_at = self.current_time + safe_interval
+  self.events.push({ id, event, trigger_at, interval: safe_interval })
   id
+}
+
+///|
+/// Schedule a periodic event only when `interval` is strictly positive.
+/// Returns `None` for invalid periods without adding a timer.
+pub fn[E] Scheduler::schedule_periodic_checked(
+  self : Scheduler[E],
+  interval : Int64,
+  event : E,
+) -> Int? {
+  if interval <= 0L {
+    None
+  } else {
+    Some(self.schedule_periodic(interval, event))
+  }
 }
 
 ///|

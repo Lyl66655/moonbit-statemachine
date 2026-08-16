@@ -27,7 +27,7 @@ pub fn[S : Eq, E, C] validate_machine(
 }
 
 ///|
-/// Validate an HSM hierarchy for missing parents and inconsistent initial children.
+/// Validate an HSM hierarchy for missing parents, cycles, and inconsistent initial children.
 pub fn[S : Eq, E, C] validate_hsm(
   name : String,
   hsm : @hsm.HSM[S, E, C],
@@ -63,8 +63,55 @@ pub fn[S : Eq, E, C] validate_hsm(
               "Set the child's parent to the composite state.",
             ),
           )
+        } else {
+          match hsm.get_parent(child) {
+            Some(parent) =>
+              if parent != item.state {
+                report.add(
+                  Diagnostic::new(
+                    "HSM002",
+                    Severity::Error,
+                    "state_" + i.to_string(),
+                    "The initial child is registered under a different parent.",
+                    "Set the child's parent to this composite state.",
+                  ),
+                )
+              }
+            None =>
+              report.add(
+                Diagnostic::new(
+                  "HSM002",
+                  Severity::Error,
+                  "state_" + i.to_string(),
+                  "The initial child is not registered as a child of this state.",
+                  "Set the child's parent to this composite state.",
+                ),
+              )
+          }
         }
       None => ()
+    }
+    if has_parent_cycle(hsm, item.state) && !has_code(report, "HSM003") {
+      report.add(
+        Diagnostic::new(
+          "HSM003",
+          Severity::Error,
+          "state_" + i.to_string(),
+          "The parent links contain a cycle.",
+          "Choose a root state and ensure every parent chain eventually reaches it.",
+        ),
+      )
+    }
+    if has_initial_child_cycle(hsm, item.state) && !has_code(report, "HSM004") {
+      report.add(
+        Diagnostic::new(
+          "HSM004",
+          Severity::Error,
+          "state_" + i.to_string(),
+          "The initial-child links contain a cycle.",
+          "Ensure composite states resolve to a leaf instead of referring back to an ancestor.",
+        ),
+      )
     }
   }
   report
@@ -135,6 +182,54 @@ fn severity_name(severity : Severity) -> String {
 fn[S : Eq, E, C] contains_state(hsm : @hsm.HSM[S, E, C], state : S) -> Bool {
   for item in hsm.hierarchy {
     if item.state == state {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn[S : Eq, E, C] has_parent_cycle(hsm : @hsm.HSM[S, E, C], state : S) -> Bool {
+  let visited = []
+  let mut current = Some(state)
+  while current is Some(item) {
+    if visited.contains(item) {
+      return true
+    }
+    visited.push(item)
+    current = hsm.get_parent(item)
+  }
+  false
+}
+
+///|
+fn[S : Eq, E, C] has_initial_child_cycle(
+  hsm : @hsm.HSM[S, E, C],
+  state : S,
+) -> Bool {
+  let visited = []
+  let mut current = Some(state)
+  while current is Some(item) {
+    if visited.contains(item) {
+      return true
+    }
+    visited.push(item)
+    let mut next = None
+    for entry in hsm.hierarchy {
+      if entry.state == item {
+        next = entry.initial_child
+        break
+      }
+    }
+    current = next
+  }
+  false
+}
+
+///|
+fn has_code(report : Report, code : String) -> Bool {
+  for diagnostic in report.diagnostics {
+    if diagnostic.code == code {
       return true
     }
   }

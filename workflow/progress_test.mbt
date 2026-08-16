@@ -14,3 +14,14 @@ test "workflow progress queries describe pending work" {
   inspect(workflow.remaining_steps(), content="0")
   inspect(workflow.retry_budget(), content="0")
 }
+
+///|
+test "workflow clamps negative retry policies at the API boundary" {
+  let workflow = @workflow.Workflow::new("negative-retry", ())
+  workflow.add_step("safe", fn(_c) { false }, max_retries=-7)
+  inspect(workflow.retry_budget(), content="0")
+  debug_inspect(
+    workflow.run_all(),
+    content="Failed(\"Step failed after 0 retries: safe\")",
+  )
+}

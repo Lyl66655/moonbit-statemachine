@@ -62,3 +62,28 @@ test "hsm query for unknown states is safe" {
     content="[]",
   )
 }
+
+///|
+test "hsm cyclic metadata is bounded during runtime queries" {
+  let hsm : @hsm.HSM[QueryState, QueryEvent, Unit] = @hsm.HSM::new(
+    QueryState::Root,
+    (),
+  )
+  hsm.add_state(
+    QueryState::Root,
+    parent=QueryState::Left,
+    initial_child=QueryState::Left,
+  )
+  hsm.add_state(
+    QueryState::Left,
+    parent=QueryState::Root,
+    initial_child=QueryState::Root,
+  )
+
+  debug_inspect(hsm.get_path_to_root(QueryState::Root), content="[Root, Left]")
+  debug_inspect(hsm.resolve_initial_leaf(QueryState::Root), content="Root")
+  inspect(
+    hsm.is_descendant(QueryState::Root, QueryState::Right),
+    content="false",
+  )
+}

@@ -48,6 +48,10 @@ pub fn[S : Eq, E, C] HSM::get_path_to_root(
   let path = []
   let mut curr = Some(state)
   while curr is Some(s) {
+    // A malformed hierarchy must not make queries or event dispatch loop forever.
+    if path.contains(s) {
+      break
+    }
     path.push(s)
     curr = self.get_parent(s)
   }
@@ -61,7 +65,12 @@ pub fn[S : Eq, E, C] HSM::resolve_initial_leaf(
   state : S,
 ) -> S {
   let mut curr = state
+  let visited = []
   while true {
+    if visited.contains(curr) {
+      break
+    }
+    visited.push(curr)
     let mut found_child = false
     for i = 0; i < self.hierarchy.length(); i = i + 1 {
       if self.hierarchy[i].state == curr {
@@ -213,7 +222,12 @@ pub fn[S : Eq, E, C] HSM::is_descendant(
   ancestor : S,
 ) -> Bool {
   let mut current = Some(candidate)
+  let visited = []
   while current is Some(state) {
+    if visited.contains(state) {
+      break
+    }
+    visited.push(state)
     if state == ancestor {
       return true
     }

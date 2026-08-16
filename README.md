@@ -2,7 +2,7 @@
 
 An open-source MoonBit library for building hierarchical state machines, deterministic workflow pipelines, and event schedulers.
 
-The project is organized around six practical building blocks:
+The project is organized around nine practical building blocks:
 
 - `core/` for the base state transition engine
 - `hsm/` for hierarchical state machines with event bubbling and LCA-based lifecycle handling
@@ -20,6 +20,8 @@ The project is organized around six practical building blocks:
 - Supports parent-child state hierarchies and bubbling event dispatch
 - Adds a simple workflow runner for agent pipelines, task orchestration, and recoverable step execution
 - Provides deterministic timer behavior for testable timeout logic
+- Rejects invalid periodic intervals through a checked API and makes the
+  legacy scheduler API fail-safe for malformed periods
 - Exports diagrams that can be embedded directly in docs and READMEs
 
 ## Repository Layout
@@ -43,7 +45,7 @@ The project is organized around six practical building blocks:
 To add this package to your project, run:
 
 ```bash
-moon add Lyl66655/moonbit-workflow-engine@0.1.3
+moon add Lyl66655/moonbit-workflow-engine@0.1.4
 ```
 
 ### Basic Usage
@@ -132,6 +134,13 @@ Markdown release evidence without wall-clock assertions. Use
 `@benchmarks.run_suite(100)` and `@benchmarks.summarize(results)` in a
 MoonBit package to reproduce the release evidence.
 
+For production configuration checks, use `@diagnostics.validate_hsm` to catch
+missing parents, parent cycles, inconsistent initial children, and initial-child
+cycles. For schedulers that accept user-provided intervals, prefer
+`schedule_periodic_checked`; it returns `None` and registers no timer when the
+interval is zero or negative. The legacy `schedule_periodic` method remains
+safe and treats such input as a one-shot event.
+
 On the current local toolchain, the standard and all-backend checks pass. Repository CI runs the standard workflow on Ubuntu, Windows, and macOS with MoonBit `0.10.7+bc794d341`.
 
 ## Competition Notes
@@ -146,8 +155,8 @@ This repository is prepared for the OSC 2026 MoonBit track:
 ## Current Status
 
 - MoonBit source files: 37
-- MoonBit source lines: 3,062 (excluding generated `.mbti` files)
-- Test count and result: 43 passed, 0 failed in the local verification run
+- MoonBit source lines: 3,261 (excluding generated `.mbti` files)
+- Test count and result: 47 passed, 0 failed in the local verification run
 
 The repository includes production-oriented engines, diagnostics, deterministic benchmark scenarios, executable examples, and boundary tests. The OSC guide uses 4k–10k effective MoonBit lines as a project-scale reference; this checkout has crossed the requested 3,000-line milestone and should continue toward the larger project-scale range before final acceptance.
 

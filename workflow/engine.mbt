@@ -20,7 +20,10 @@ pub fn[C] Workflow::add_step(
   max_retries? : Int = 0,
   on_failure? : (C, String) -> Unit,
 ) -> Unit {
-  self.steps.push({ name, action, max_retries, on_failure })
+  // Negative retry counts are not meaningful. Clamp them at the boundary so
+  // a caller cannot create a step with a negative retry budget.
+  let retries = if max_retries < 0 { 0 } else { max_retries }
+  self.steps.push({ name, action, max_retries: retries, on_failure })
 }
 
 ///|
@@ -95,7 +98,12 @@ pub fn[C] Workflow::retry_budget(self : Workflow[C]) -> Int {
     0
   } else {
     let step = self.steps[self.current_step_index]
-    step.max_retries - self.retries_current
+    let budget = step.max_retries - self.retries_current
+    if budget < 0 {
+      0
+    } else {
+      budget
+    }
   }
 }
 

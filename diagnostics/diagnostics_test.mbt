@@ -47,7 +47,25 @@ test "hsm diagnostics find an unregistered parent" {
 
   hsm.add_state(State::Active, parent=State::Active)
   let invalid = @diagnostics.validate_hsm("invalid", hsm)
-  inspect(invalid.error_count(), content="0")
+  inspect(invalid.error_count(), content="1")
+  inspect(invalid.diagnostics()[0].code, content="HSM003")
+}
+
+///|
+test "hsm diagnostics find inconsistent initial children and child cycles" {
+  let hsm : @hsm.HSM[State, Event, Context] = @hsm.HSM::new(State::Idle, {
+    runs: 0,
+  })
+  hsm.add_state(State::Idle, initial_child=State::Active)
+  hsm.add_state(State::Active)
+  let invalid = @diagnostics.validate_hsm("initial-child", hsm)
+  inspect(invalid.error_count(), content="1")
+  inspect(invalid.diagnostics()[0].code, content="HSM002")
+
+  hsm.add_state(State::Active, initial_child=State::Idle)
+  let cycle = @diagnostics.validate_hsm("initial-cycle", hsm)
+  inspect(cycle.error_count(), content="3")
+  inspect(cycle.diagnostics()[1].code, content="HSM004")
 }
 
 ///|

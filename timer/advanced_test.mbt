@@ -28,3 +28,23 @@ test "scheduler clear works after a periodic timer" {
   debug_inspect(scheduler.tick(100L), content="[]")
   inspect(scheduler.get_time(), content="100")
 }
+
+///|
+test "scheduler rejects invalid periodic intervals without registering them" {
+  let scheduler = @timer.Scheduler::new()
+  debug_inspect(
+    scheduler.schedule_periodic_checked(0L, TimerEvent::A),
+    content="None",
+  )
+  debug_inspect(
+    scheduler.schedule_periodic_checked(-10L, TimerEvent::B),
+    content="None",
+  )
+  inspect(scheduler.pending_count(), content="0")
+
+  // The legacy Int-returning API remains safe for callers that cannot use the
+  // checked variant: malformed input becomes one one-shot event.
+  ignore(scheduler.schedule_periodic(0L, TimerEvent::A))
+  debug_inspect(scheduler.tick(1L), content="[A]")
+  inspect(scheduler.pending_count(), content="0")
+}
