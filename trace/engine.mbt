@@ -108,6 +108,23 @@ pub fn Trace::count_at_or_after(self : Trace, timestamp : Int64) -> Int {
 }
 
 ///|
+/// Count failure records for health summaries.
+pub fn Trace::failure_count(self : Trace) -> Int {
+  self.count_operation(Operation::Failure)
+}
+
+///|
+/// Return the most recent failure record, if any.
+pub fn Trace::last_failure(self : Trace) -> Record? {
+  for i = self.records.length() - 1; i >= 0; i = i - 1 {
+    if self.records[i].operation == Operation::Failure {
+      return Some(self.records[i])
+    }
+  }
+  None
+}
+
+///|
 /// Return the first record at or after a logical timestamp.
 pub fn Trace::at_or_after(self : Trace, timestamp : Int64) -> Record? {
   for record in self.records {

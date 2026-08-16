@@ -122,3 +122,26 @@ test "trace aggregate queries avoid unnecessary allocations" {
   )
   debug_inspect(trace.checkpoint_after(4L), content="None")
 }
+
+///|
+test "trace failure summary points to the latest failure" {
+  let trace = @trace.Trace::new()
+  ignore(trace.append(1L, @trace.Operation::Failure, "build", "compile"))
+  ignore(trace.append(2L, @trace.Operation::Retry, "build", "retry"))
+  ignore(trace.append(3L, @trace.Operation::Failure, "deploy", "network"))
+  inspect(trace.failure_count(), content="2")
+  debug_inspect(
+    trace.last_failure(),
+    content=(
+      #|Some(
+      #|  {
+      #|    sequence: 2,
+      #|    timestamp: 3,
+      #|    operation: Failure,
+      #|    subject: "deploy",
+      #|    detail: "network",
+      #|  },
+      #|)
+    ),
+  )
+}

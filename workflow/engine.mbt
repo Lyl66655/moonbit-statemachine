@@ -69,6 +69,37 @@ pub fn[C] Workflow::step_count(self : Workflow[C]) -> Int {
 }
 
 ///|
+/// Return the name of the next pending step, or an empty string at terminal state.
+pub fn[C] Workflow::pending_step_name(self : Workflow[C]) -> String {
+  if self.is_complete() || self.current_step_index >= self.steps.length() {
+    ""
+  } else {
+    self.steps[self.current_step_index].name
+  }
+}
+
+///|
+/// Return how many configured steps remain before terminal success.
+pub fn[C] Workflow::remaining_steps(self : Workflow[C]) -> Int {
+  if self.current_step_index >= self.steps.length() {
+    0
+  } else {
+    self.steps.length() - self.current_step_index
+  }
+}
+
+///|
+/// Return the number of additional retries available for the pending step.
+pub fn[C] Workflow::retry_budget(self : Workflow[C]) -> Int {
+  if self.current_step_index >= self.steps.length() {
+    0
+  } else {
+    let step = self.steps[self.current_step_index]
+    step.max_retries - self.retries_current
+  }
+}
+
+///|
 /// Return whether the workflow reached a terminal status.
 pub fn[C] Workflow::is_complete(self : Workflow[C]) -> Bool {
   self.status == StepStatus::Success || self.status is StepStatus::Failed(_)

@@ -43,7 +43,7 @@ The project is organized around six practical building blocks:
 To add this package to your project, run:
 
 ```bash
-moon add Lyl66655/moonbit-workflow-engine@0.1.1
+moon add Lyl66655/moonbit-workflow-engine@0.1.2
 ```
 
 ### Basic Usage
