@@ -1,0 +1,5 @@
+import {
+  "Lyl66655/moonbit-workflow-engine/examples/ai_agent_workflow",
+}
+
+pkgtype(kind: "executable")

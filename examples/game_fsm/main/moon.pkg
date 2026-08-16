@@ -1,0 +1,5 @@
+import {
+  "Lyl66655/moonbit-workflow-engine/examples/game_fsm",
+}
+
+pkgtype(kind: "executable")
