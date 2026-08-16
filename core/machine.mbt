@@ -29,6 +29,70 @@ pub fn[S, E, C] Machine::get_history(self : Machine[S, E, C]) -> Array[S] {
 }
 
 ///|
+/// Return the number of transitions currently registered.
+pub fn[S, E, C] Machine::transition_count(self : Machine[S, E, C]) -> Int {
+  self.transitions.length()
+}
+
+///|
+/// Return the number of state visits retained in history.
+pub fn[S, E, C] Machine::history_count(self : Machine[S, E, C]) -> Int {
+  self.history.length()
+}
+
+///|
+/// Remove a transition by registration index.
+pub fn[S, E, C] Machine::remove_transition(
+  self : Machine[S, E, C],
+  index : Int,
+) -> Bool {
+  if index < 0 || index >= self.transitions.length() {
+    return false
+  }
+  let _ = self.transitions.remove(index)
+  true
+}
+
+///|
+/// Remove all transition rules while preserving state and context.
+pub fn[S, E, C] Machine::clear_transitions(self : Machine[S, E, C]) -> Unit {
+  self.transitions = []
+}
+
+///|
+/// Return whether a matching transition can currently accept an event.
+/// Guards are evaluated, but actions and lifecycle hooks are not executed.
+pub fn[S : Eq, E : Eq, C] Machine::can_send(
+  self : Machine[S, E, C],
+  event : E,
+) -> Bool {
+  for transition in self.transitions {
+    if transition.from_state == self.current_state && transition.event == event {
+      match transition.cond {
+        Some(predicate) => if predicate(self.context, event) { return true }
+        None => return true
+      }
+    }
+  }
+  false
+}
+
+///|
+/// Return whether a state has appeared in the current history.
+pub fn[S : Eq, E, C] Machine::has_visited(
+  self : Machine[S, E, C],
+  state : S,
+) -> Bool {
+  self.history.contains(state)
+}
+
+///|
+/// Drop historical states while retaining the current state as the new origin.
+pub fn[S, E, C] Machine::checkpoint(self : Machine[S, E, C]) -> Unit {
+  self.history = [self.current_state]
+}
+
+///|
 /// Reset the machine to a new initial state and context, clearing history.
 pub fn[S, E, C] Machine::reset(
   self : Machine[S, E, C],

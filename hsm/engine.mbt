@@ -204,3 +204,67 @@ pub fn[S : Eq, E : Eq, C] HSM::send(self : HSM[S, E, C], event : E) -> Bool {
   }
   false
 }
+
+///|
+/// Return whether candidate is the same state as or below ancestor.
+pub fn[S : Eq, E, C] HSM::is_descendant(
+  self : HSM[S, E, C],
+  candidate : S,
+  ancestor : S,
+) -> Bool {
+  let mut current = Some(candidate)
+  while current is Some(state) {
+    if state == ancestor {
+      return true
+    }
+    current = self.get_parent(state)
+  }
+  false
+}
+
+///|
+/// Return the nearest common ancestor of two registered states.
+pub fn[S : Eq, E, C] HSM::lowest_common_ancestor(
+  self : HSM[S, E, C],
+  left : S,
+  right : S,
+) -> S? {
+  let left_path = self.get_path_to_root(left)
+  let right_path = self.get_path_to_root(right)
+  for candidate in left_path {
+    if right_path.contains(candidate) {
+      return Some(candidate)
+    }
+  }
+  None
+}
+
+///|
+/// Return the lifecycle path needed to leave from and enter to.
+pub fn[S : Eq, E, C] HSM::transition_path(
+  self : HSM[S, E, C],
+  from : S,
+  to : S,
+) -> Array[S] {
+  match self.lowest_common_ancestor(from, to) {
+    None => []
+    Some(common) => {
+      let result = []
+      let mut current = Some(from)
+      while current is Some(state) && state != common {
+        result.push(state)
+        current = self.get_parent(state)
+      }
+      let entering = []
+      let mut target = Some(to)
+      while target is Some(state) && state != common {
+        entering.push(state)
+        target = self.get_parent(state)
+      }
+      for i = entering.length() - 1; i >= 0; i = i - 1 {
+        result.push(entering[i])
+      }
+      result
+    }
+  }
+}

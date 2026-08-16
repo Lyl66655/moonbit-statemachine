@@ -12,5 +12,5 @@ pub(all) struct ScheduledEvent[E] {
 pub(all) struct Scheduler[E] {
   mut next_id : Int
   mut current_time : Int64
-  events : Array[ScheduledEvent[E]]
+  mut events : Array[ScheduledEvent[E]]
 }

@@ -36,6 +36,75 @@ pub fn[C] Workflow::get_context(self : Workflow[C]) -> C {
 }
 
 ///|
+/// Reset execution state while preserving the configured steps and context.
+/// This is useful when a long-lived runner processes repeated jobs.
+pub fn[C] Workflow::reset(self : Workflow[C]) -> Unit {
+  self.current_step_index = 0
+  self.status = StepStatus::Pending
+  self.retries_current = 0
+}
+
+///|
+/// Return the zero-based index of the next step to execute.
+pub fn[C] Workflow::current_step(self : Workflow[C]) -> Int {
+  self.current_step_index
+}
+
+///|
+/// Return the number of attempts already spent on the current step.
+pub fn[C] Workflow::current_retries(self : Workflow[C]) -> Int {
+  self.retries_current
+}
+
+///|
+/// Return the configured workflow name.
+pub fn[C] Workflow::get_name(self : Workflow[C]) -> String {
+  self.name
+}
+
+///|
+/// Return the number of configured steps.
+pub fn[C] Workflow::step_count(self : Workflow[C]) -> Int {
+  self.steps.length()
+}
+
+///|
+/// Return whether the workflow reached a terminal status.
+pub fn[C] Workflow::is_complete(self : Workflow[C]) -> Bool {
+  self.status == StepStatus::Success || self.status is StepStatus::Failed(_)
+}
+
+///|
+/// Execute at most limit steps, allowing cooperative hosts to interleave work.
+pub fn[C] Workflow::run_steps(self : Workflow[C], limit : Int) -> StepStatus {
+  if limit <= 0 {
+    return self.status
+  }
+  let mut executed = 0
+  while executed < limit && !self.is_complete() {
+    ignore(self.step())
+    executed = executed + 1
+  }
+  self.status
+}
+
+///|
+/// Skip the pending step and mark it successful without invoking its action.
+pub fn[C] Workflow::skip_current(self : Workflow[C]) -> Bool {
+  if self.is_complete() || self.current_step_index >= self.steps.length() {
+    return false
+  }
+  self.current_step_index = self.current_step_index + 1
+  self.retries_current = 0
+  if self.current_step_index >= self.steps.length() {
+    self.status = StepStatus::Success
+  } else {
+    self.status = StepStatus::Pending
+  }
+  true
+}
+
+///|
 /// Execute a single step in the workflow pipeline.
 /// Returns the updated workflow status.
 pub fn[C] Workflow::step(self : Workflow[C]) -> StepStatus {

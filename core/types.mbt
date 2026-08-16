@@ -20,7 +20,7 @@ pub(all) struct StateConfig[C] {
 pub(all) struct Machine[S, E, C] {
   mut current_state : S
   mut context : C
-  transitions : Array[Transition[S, E, C]]
+  mut transitions : Array[Transition[S, E, C]]
   state_configs : Array[(S, StateConfig[C])]
   mut history : Array[S]
 }

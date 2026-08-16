@@ -11,6 +11,46 @@ pub fn[E] Scheduler::get_time(self : Scheduler[E]) -> Int64 {
 }
 
 ///|
+/// Return the number of active one-shot and periodic timers.
+pub fn[E] Scheduler::pending_count(self : Scheduler[E]) -> Int {
+  self.events.length()
+}
+
+///|
+/// Return whether a timer ID is currently active.
+pub fn[E] Scheduler::contains(self : Scheduler[E], timer_id : Int) -> Bool {
+  for event in self.events {
+    if event.id == timer_id {
+      return true
+    }
+  }
+  false
+}
+
+///|
+/// Return the next due timestamp, or None when the scheduler is idle.
+pub fn[E] Scheduler::next_due(self : Scheduler[E]) -> Int64? {
+  if self.events.length() == 0 {
+    return None
+  }
+  let mut result = self.events[0].trigger_at
+  for i = 1; i < self.events.length(); i = i + 1 {
+    if self.events[i].trigger_at < result {
+      result = self.events[i].trigger_at
+    }
+  }
+  Some(result)
+}
+
+///|
+/// Cancel every active timer and return the number removed.
+pub fn[E] Scheduler::cancel_all(self : Scheduler[E]) -> Int {
+  let count = self.events.length()
+  self.events = []
+  count
+}
+
+///|
 /// Schedule a one-shot event to trigger after `delay` milliseconds/ticks.
 /// Returns a unique timer ID that can be used for cancellation.
 pub fn[E] Scheduler::schedule_after(
@@ -23,6 +63,29 @@ pub fn[E] Scheduler::schedule_after(
   let trigger_at = self.current_time + delay
   self.events.push({ id, event, trigger_at, interval: 0L })
   id
+}
+
+///|
+/// Schedule an event at an absolute logical timestamp.
+pub fn[E] Scheduler::schedule_at(
+  self : Scheduler[E],
+  timestamp : Int64,
+  event : E,
+) -> Int {
+  let id = self.next_id
+  self.next_id = self.next_id + 1
+  self.events.push({ id, event, trigger_at: timestamp, interval: 0L })
+  id
+}
+
+///|
+/// Return all active timer IDs in registration order.
+pub fn[E] Scheduler::timer_ids(self : Scheduler[E]) -> Array[Int] {
+  let result = []
+  for event in self.events {
+    result.push(event.id)
+  }
+  result
 }
 
 ///|

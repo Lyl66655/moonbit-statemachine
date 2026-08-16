@@ -1,0 +1,5 @@
+import {
+  "Lyl66655/moonbit-workflow-engine/core",
+  "Lyl66655/moonbit-workflow-engine/hsm",
+  "Lyl66655/moonbit-workflow-engine/workflow",
+}
